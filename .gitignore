@@ -17,7 +17,7 @@ env/
 
 # Output files
 output/
-*.csv
+output/*.csv
 *.pkl
 *.joblib
 *.jl
