@@ -11,9 +11,7 @@ venv/
 ENV/
 env/
 
-# Jupyter Notebook
-.ipynb_checkpoints
-*.ipynb
+
 
 # Output files
 output/
