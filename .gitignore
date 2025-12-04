@@ -10,29 +10,35 @@ __pycache__/
 venv/
 ENV/
 env/
-
-
-
-# Output files
-output/
-*.csv
-*.pkl
-*.joblib
-*.jl
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS
-.DS_Store
-Thumbs.db
-
-
-
-# Keep example/readme files
-!README.md
-!requirements.txt
+ 
+ # Output files & data
+ output/
+ data/
+ models/
+ logs/
+ *.csv
+ *.pkl
+ *.joblib
+ *.jl
+ 
+ # Notebooks
+ .ipynb_checkpoints/
+ 
+ # Python caches
+ .pytest_cache/
+ .mypy_cache/
+ 
+ # IDE
+ .vscode/
+ .idea/
+ *.swp
+ *.swo
+ *~
+ 
+ # OS
+ .DS_Store
+ Thumbs.db
+ 
+ # Keep example/readme files
+ !README.md
+ !requirements.txt
