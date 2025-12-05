@@ -17,7 +17,7 @@ env/
 
 # Output files
 output/
-output/*.csv
+*.csv
 *.pkl
 *.joblib
 *.jl
@@ -33,7 +33,8 @@ output/*.csv
 .DS_Store
 Thumbs.db
 
-
+# # Keep data folder structure but ignore CSV files
+!data/.gitkeep
 
 # Keep example/readme files
 !README.md

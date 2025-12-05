@@ -1,0 +1,1 @@
+- [x] Update `.gitignore` so data CSVs can be committed
