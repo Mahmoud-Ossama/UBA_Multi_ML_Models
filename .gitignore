@@ -4,24 +4,27 @@ __pycache__/
 *$py.class
 *.so
 .Python
+*.pyc
 
 # Virtual Environment
 .venv/
 venv/
 ENV/
 env/
-<<<<<<< HEAD
+.conda/
 
 # Jupyter Notebook
-.ipynb_checkpoints
-*.ipynb
+.ipynb_checkpoints/
 
-# Output files
-output/
-*.csv
-*.pkl
-*.joblib
-*.jl
+# Output files (specific, not global)
+output/*.csv
+output/*.pkl
+logs/
+
+# Python caches
+.pytest_cache/
+.mypy_cache/
+*.egg-info/
 
 # IDE
 .vscode/
@@ -34,43 +37,28 @@ output/
 .DS_Store
 Thumbs.db
 
-# # Keep data folder structure but ignore CSV files
-!data/.gitkeep
+# Node.js / Frontend
+node_modules/
+dist/
+.next/
+build/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-# Keep example/readme files
+# Backend temporary files
+backend/uploads/
+backend/temp/
+*.tmp
+
+# Keep important files
 !README.md
 !requirements.txt
-=======
- 
- # Output files & data
- output/
- data/
- models/
- logs/
- *.csv
- *.pkl
- *.joblib
- *.jl
- 
- # Notebooks
- .ipynb_checkpoints/
- 
- # Python caches
- .pytest_cache/
- .mypy_cache/
- 
- # IDE
- .vscode/
- .idea/
- *.swp
- *.swo
- *~
- 
- # OS
- .DS_Store
- Thumbs.db
- 
- # Keep example/readme files
- !README.md
- !requirements.txt
->>>>>>> 694c2cd1b1d4159c9c2163a06b4a10a87452d63d
+!data/.gitkeep
+!models/registry.json
