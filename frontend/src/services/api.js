@@ -1,6 +1,53 @@
-// Mock API service for frontend during development
-const now = Date.now();
+// API service - connects to FastAPI backend
+// Use relative URLs so Vite proxy can forward to backend
+const API_BASE = import.meta.env.VITE_API_URL || "";
 
+/**
+ * Fetch available ML models from backend
+ */
+export async function fetchModels() {
+  const res = await fetch(`${API_BASE}/api/models`);
+  if (!res.ok) throw new Error(`Failed to fetch models: ${res.statusText}`);
+  const json = await res.json();
+  return json.data || [];
+}
+
+/**
+ * Run ML analysis on uploaded file
+ * @param {string} modelId - Model ID from registry
+ * @param {File} file - CSV file to analyze
+ */
+export async function runAnalysis(modelId, file) {
+  const formData = new FormData();
+  formData.append("model_id", modelId);
+  formData.append("file", file);
+
+  const res = await fetch(`${API_BASE}/api/analyze`, {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: res.statusText }));
+    throw new Error(err.detail || "Analysis failed");
+  }
+
+  const json = await res.json();
+  return json.data;
+}
+
+/**
+ * Fetch recent alerts from output directory
+ */
+export async function fetchAlerts() {
+  const res = await fetch(`${API_BASE}/api/alerts`);
+  if (!res.ok) throw new Error(`Failed to fetch alerts: ${res.statusText}`);
+  const json = await res.json();
+  return json.data || [];
+}
+
+// Legacy mock functions for fallback during development
+const now = Date.now();
 const sampleUsers = ["alice", "bob", "charlie", "diana", "eve"];
 
 function randInt(min, max) {
@@ -22,20 +69,3 @@ export async function fetchAnalysis() {
   return Promise.resolve(out);
 }
 
-export async function fetchAlerts() {
-  const alerts = [
-    {
-      id: 1,
-      title: "Unusual download volume",
-      desc: "User bob downloaded 3.2GB in 10 minutes",
-      severity: "high",
-    },
-    {
-      id: 2,
-      title: "Multiple failed logins",
-      desc: "5 failed logins for user alice from new IP",
-      severity: "medium",
-    },
-  ];
-  return Promise.resolve(alerts);
-}

@@ -10,33 +10,31 @@ export default function App() {
   const [results, setResults] = useState(null)
 
   useEffect(() => {
-    // load mock data
-    fetchAlerts().then(setAlerts)
-    fetchAnalysis().then(setAnalysis)
+    // Load alerts from backend (fallback to empty on error)
+    fetchAlerts()
+      .then(setAlerts)
+      .catch(err => {
+        console.warn('Failed to fetch alerts, using empty array:', err)
+        setAlerts([])
+      })
+    
+    // Load mock analysis data (user activity timeline)
+    fetchAnalysis()
+      .then(setAnalysis)
+      .catch(err => {
+        console.warn('Failed to fetch analysis:', err)
+        setAnalysis([])
+      })
   }, [])
 
-  const handleRunAnalysis = ({ modelId, modelName, toolName, fileName }) => {
+  const handleRunAnalysis = (resultData) => {
     setView('results-loading')
 
+    // Simulate slight delay for UX (backend already processed)
     setTimeout(() => {
-      const accuracy = (Math.random() * (0.98 - 0.85) + 0.85).toFixed(4)
-      const precision = (Math.random() * (0.96 - 0.82) + 0.82).toFixed(4)
-      const recall = (Math.random() * (0.95 - 0.80) + 0.80).toFixed(4)
-      const f1Score = (Math.random() * (0.94 - 0.81) + 0.81).toFixed(4)
-
-      setResults({
-        modelId,
-        modelName,
-        toolName,
-        fileName,
-        accuracy,
-        precision,
-        recall,
-        f1Score,
-        timestamp: new Date().toLocaleString()
-      })
+      setResults(resultData)
       setView('results')
-    }, 2000)
+    }, 500)
   }
 
   const renderMain = () => {
@@ -85,28 +83,63 @@ export default function App() {
             <div className="results-body">
               <div className="results-grid">
                 <div className="results-metric">
-                  <div className="metric-label">Accuracy</div>
-                  <div className="metric-value">{(results.accuracy * 100).toFixed(2)}%</div>
+                  <div className="metric-label">Total Rows</div>
+                  <div className="metric-value">{results.totalRows?.toLocaleString() || 'N/A'}</div>
                 </div>
                 <div className="results-metric">
-                  <div className="metric-label">Precision</div>
-                  <div className="metric-value">{(results.precision * 100).toFixed(2)}%</div>
+                  <div className="metric-label">Alerts Found</div>
+                  <div className="metric-value">{results.totalAlerts?.toLocaleString() || 'N/A'}</div>
                 </div>
                 <div className="results-metric">
-                  <div className="metric-label">Recall</div>
-                  <div className="metric-value">{(results.recall * 100).toFixed(2)}%</div>
+                  <div className="metric-label">Alert Rate</div>
+                  <div className="metric-value">
+                    {results.totalRows > 0 
+                      ? ((results.totalAlerts / results.totalRows) * 100).toFixed(2) + '%'
+                      : 'N/A'}
+                  </div>
                 </div>
                 <div className="results-metric">
-                  <div className="metric-label">F1 Score</div>
-                  <div className="metric-value">{(results.f1Score * 100).toFixed(2)}%</div>
+                  <div className="metric-label">Model Type</div>
+                  <div className="metric-value" style={{fontSize: '16px'}}>Anomaly Detection</div>
                 </div>
               </div>
 
               <div className="results-scroll">
                 <p className="results-note">
-                  This results view illustrates how model performance and context
-                  for a given dataset could be summarized.
+                  Analysis completed using {results.modelName}. 
+                  {results.totalAlerts > 0 
+                    ? ` Found ${results.totalAlerts} suspicious activities out of ${results.totalRows} total events.`
+                    : ' No anomalies detected in the dataset.'}
                 </p>
+                
+                {results.alerts && results.alerts.length > 0 && (
+                  <div style={{marginTop: '16px'}}>
+                    <h4 style={{marginBottom: '8px'}}>Sample Alerts (first 5):</h4>
+                    <div style={{
+                      background: 'rgba(0,0,0,0.3)',
+                      borderRadius: '8px',
+                      padding: '12px',
+                      maxHeight: '200px',
+                      overflow: 'auto'
+                    }}>
+                      {results.alerts.slice(0, 5).map((alert, idx) => (
+                        <div key={idx} style={{
+                          padding: '8px 0',
+                          borderBottom: idx < 4 ? '1px solid rgba(255,255,255,0.1)' : 'none',
+                          fontSize: '13px'
+                        }}>
+                          <div style={{color: '#a78bfa'}}>
+                            {alert.url || alert.request || 'N/A'}
+                          </div>
+                          <div style={{color: 'rgba(255,255,255,0.6)', marginTop: '4px'}}>
+                            Final Alert: {alert.final_alert}, Anomaly: {alert.is_anomaly}
+                            {alert.is_sqli_flag !== undefined && `, SQLi Flag: ${alert.is_sqli_flag}`}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

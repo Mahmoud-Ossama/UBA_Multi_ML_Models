@@ -1,16 +1,30 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState, useEffect } from 'react'
 import UserList from './UserList'
 import AlertList from './AlertList'
 import MiniChart from './MiniChart'
+import { fetchModels, runAnalysis } from '../services/api'
 
 export default function Dashboard({ alerts = [], analysis = [], onRunAnalysis }){
   const [query, setQuery] = useState('')
   const [riskFilter, setRiskFilter] = useState('all')
 
   // Model Selection & File Upload States
+  const [models, setModels] = useState([])
   const [selectedModel, setSelectedModel] = useState('')
   const [selectedTool, setSelectedTool] = useState('')
   const [uploadedFile, setUploadedFile] = useState(null)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [error, setError] = useState(null)
+
+  // Load available models on mount
+  useEffect(() => {
+    fetchModels()
+      .then(setModels)
+      .catch(err => {
+        console.error('Failed to load models:', err)
+        setError('Failed to load models from backend')
+      })
+  }, [])
 
   const users = useMemo(() => {
     // derive users from analysis
@@ -29,14 +43,8 @@ export default function Dashboard({ alerts = [], analysis = [], onRunAnalysis })
     return true
   })
 
-  // Available Models
-  const models = [
-    { id: 'model1', name: 'Random Forest Classifier' },
-    { id: 'model2', name: 'Neural Network (LSTM)' },
-    { id: 'model3', name: 'Support Vector Machine' },
-    { id: 'model4', name: 'Gradient Boosting' },
-    { id: 'model5', name: 'Deep Learning CNN' }
-  ]
+  // Available Models - now loaded from backend
+  // const models = [ ... ] - removed, using state from fetchModels
 
   const tools = [
     { id: 'tool1', name: 'Anomaly Scoring' },
@@ -49,25 +57,44 @@ export default function Dashboard({ alerts = [], analysis = [], onRunAnalysis })
     const file = e.target.files[0]
     if (file) {
       setUploadedFile(file)
+      setError(null)
     }
   }
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
     if (!selectedModel || !uploadedFile) {
-      alert('Please select a model and upload a file')
+      setError('Please select a model and upload a file')
       return
     }
 
-    if (!onRunAnalysis) return
+    setIsAnalyzing(true)
+    setError(null)
 
-    const model = models.find(m => m.id === selectedModel)
-    const tool = tools.find(t => t.id === selectedTool)
-    onRunAnalysis({
-      modelId: selectedModel,
-      modelName: model ? model.name : selectedModel,
-      toolName: tool ? tool.name : '',
-      fileName: uploadedFile.name
-    })
+    try {
+      const result = await runAnalysis(selectedModel, uploadedFile)
+      
+      // Call parent callback with real results
+      if (onRunAnalysis) {
+        const model = models.find(m => m.id === selectedModel)
+        const tool = tools.find(t => t.id === selectedTool)
+        
+        onRunAnalysis({
+          modelId: selectedModel,
+          modelName: model ? model.name : selectedModel,
+          toolName: tool ? tool.name : '',
+          fileName: uploadedFile.name,
+          totalRows: result.total_rows,
+          totalAlerts: result.total_alerts,
+          alerts: result.alerts,
+          timestamp: new Date().toLocaleString()
+        })
+      }
+    } catch (err) {
+      console.error('Analysis failed:', err)
+      setError(err.message || 'Analysis failed')
+    } finally {
+      setIsAnalyzing(false)
+    }
   }
 
   return (
@@ -77,6 +104,19 @@ export default function Dashboard({ alerts = [], analysis = [], onRunAnalysis })
           <div className="upload-header">
             <h3>Run a new analysis</h3>
             <p>Choose a model and optional tool, then upload your dataset.</p>
+            {error && (
+              <div style={{
+                marginTop: '8px',
+                padding: '8px 12px',
+                background: 'rgba(239, 68, 68, 0.1)',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                borderRadius: '6px',
+                color: '#f87171',
+                fontSize: '14px'
+              }}>
+                {error}
+              </div>
+            )}
           </div>
 
           <div className="upload-select-row">
@@ -126,9 +166,9 @@ export default function Dashboard({ alerts = [], analysis = [], onRunAnalysis })
           <button
             className="btn primary upload-run-btn"
             onClick={handleAnalyze}
-            disabled={!selectedModel || !uploadedFile}
+            disabled={!selectedModel || !uploadedFile || isAnalyzing}
           >
-            Run analysis
+            {isAnalyzing ? 'Running analysis...' : 'Run analysis'}
           </button>
         </div>
 
