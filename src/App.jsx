@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import Hero from './components/Hero'
 import Dashboard from './components/Dashboard'
+import ModelLab from './components/ModelLab'
 import { fetchAlerts, fetchAnalysis } from './services/api'
 
 export default function App() {
@@ -15,7 +16,7 @@ export default function App() {
     fetchAnalysis().then(setAnalysis)
   }, [])
 
-  const handleRunAnalysis = ({ modelId, modelName, toolName, fileName }) => {
+  const handleRunAnalysis = (payload) => {
     setView('results-loading')
 
     setTimeout(() => {
@@ -25,10 +26,7 @@ export default function App() {
       const f1Score = (Math.random() * (0.94 - 0.81) + 0.81).toFixed(4)
 
       setResults({
-        modelId,
-        modelName,
-        toolName,
-        fileName,
+        ...payload,
         accuracy,
         precision,
         recall,
@@ -49,8 +47,15 @@ export default function App() {
         <Dashboard
           alerts={alerts}
           analysis={analysis}
-          onRunAnalysis={handleRunAnalysis}
         />
+      )
+    }
+
+    if (view === 'lab') {
+      return (
+        <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
+          <ModelLab onRunAnalysis={handleRunAnalysis} />
+        </div>
       )
     }
 
@@ -112,9 +117,9 @@ export default function App() {
 
             <button
               className="btn primary results-back-btn"
-              onClick={() => setView('dashboard')}
+              onClick={() => setView('lab')}
             >
-              Run another analysis
+              Back to Lab
             </button>
           </div>
         </section>
@@ -127,16 +132,17 @@ export default function App() {
   return (
     <div className="app-root">
       <header className="topbar">
-        <div className="brand">UBA Analytics</div>
+        <div className="brand">UBA SOC Monitor</div>
         <nav>
           <button onClick={() => setView('home')}>Home</button>
           <button onClick={() => setView('dashboard')}>Dashboard</button>
+          <button onClick={() => setView('lab')}>Model Lab</button>
         </nav>
       </header>
       <main>
         {renderMain()}
       </main>
-      <footer className="site-footer">Cognitive UBA — University Project</footer>
+      <footer className="site-footer">Cognitive UBA — SOC Edition 2026</footer>
     </div>
   )
 }
