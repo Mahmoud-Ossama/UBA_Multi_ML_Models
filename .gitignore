@@ -1,9 +1,57 @@
+<<<<<<< HEAD
 # Logs
 logs
+=======
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.pyc
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+.conda/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Output files (specific, not global)
+output/*.csv
+output/*.pkl
+logs/
+
+# Python caches
+.pytest_cache/
+.mypy_cache/
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node.js / Frontend
+node_modules/
+dist/
+.next/
+build/
+>>>>>>> fe1aa6ea661542cf71d1ac0a66dca6b66ad282d8
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+<<<<<<< HEAD
 pnpm-debug.log*
 
 # Dependency directories
@@ -55,3 +103,21 @@ coverage/
 # Misc
 *.log.*
 *.orig
+=======
+.pnpm-debug.log*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Backend temporary files
+backend/uploads/
+backend/temp/
+*.tmp
+
+# Keep important files
+!README.md
+!requirements.txt
+!data/.gitkeep
+!models/registry.json
+>>>>>>> fe1aa6ea661542cf71d1ac0a66dca6b66ad282d8

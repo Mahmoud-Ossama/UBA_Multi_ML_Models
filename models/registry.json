@@ -1,0 +1,11 @@
+{
+  "sqli_detection": {
+    "id": "sqli_detection",
+    "name": "SQL Injection Detection",
+    "path": "models/sqli_detection_model.joblib",
+    "features_module": "src.features.sql_injection",
+    "description": "Detects SQL injection attacks in HTTP URLs using IsolationForest",
+    "input_format": "CSV with HTTP request logs",
+    "output_type": "anomaly_detection"
+  }
+}
