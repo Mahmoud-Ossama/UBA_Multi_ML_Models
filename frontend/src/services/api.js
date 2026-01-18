@@ -46,26 +46,14 @@ export async function fetchAlerts() {
   return json.data || [];
 }
 
-// Legacy mock functions for fallback during development
-const now = Date.now();
-const sampleUsers = ["alice", "bob", "charlie", "diana", "eve"];
-
-function randInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
+/**
+ * Fetch analysis/activity data
+ * TODO: Implement real user activity tracking endpoint
+ * For now, returns empty array - user activity features not yet implemented
+ */
 export async function fetchAnalysis() {
-  // return sample events
-  const out = [];
-  for (let i = 0; i < 40; i++) {
-    const user = sampleUsers[randInt(0, sampleUsers.length - 1)];
-    const time = now - randInt(0, 1000 * 60 * 60 * 24 * 10);
-    const risk =
-      Math.random() < 0.12 ? "high" : Math.random() < 0.25 ? "medium" : "low";
-    out.push({ id: i, username: user, time, action: "login", risk });
-  }
-  // sort desc
-  out.sort((a, b) => b.time - a.time);
-  return Promise.resolve(out);
+  // Return empty array - user activity tracking is planned for Phase 2
+  // This will be replaced with a real endpoint when user session tracking is implemented
+  return Promise.resolve([]);
 }
 

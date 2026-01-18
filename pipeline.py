@@ -59,6 +59,7 @@ def run_prediction(input_csv_path, model_path, output_path='output/alerts.csv'):
         scaler = model_data.get('scaler')
         feature_cols = model_data.get('feature_cols')
         model_type = model_data.get('model_type', 'unknown')
+        features_module = model_data.get('features_module')  # Optional: module path for feature extraction
         
         if not model:
             raise ValueError("Model data does not contain 'model' key")
@@ -68,13 +69,31 @@ def run_prediction(input_csv_path, model_path, output_path='output/alerts.csv'):
     # Extract features based on model type
     print(f"Extracting features for model type: {model_type}")
     
-    if model_type == 'sqli_detection' or 'sql' in model_path.lower():
-        # Import SQL injection feature extractor
-        from src.features.sql_injection import extract_features
+    # Try to load feature extractor dynamically
+    extract_features = None
+    
+    # Method 1: Use features_module from model metadata (preferred)
+    if features_module:
+        try:
+            import importlib
+            module = importlib.import_module(features_module)
+            extract_features = getattr(module, 'extract_features', None)
+            if extract_features:
+                print(f"Loaded feature extractor from: {features_module}")
+        except ImportError as e:
+            print(f"Warning: Could not import {features_module}: {e}")
+    
+    # Method 2: Fall back to model_type-based dispatch
+    if extract_features is None:
+        if model_type == 'sqli_detection' or 'sql' in model_path.lower():
+            from src.features.sql_injection import extract_features
+            print("Using SQL injection feature extractor (fallback)")
+        else:
+            print("Warning: Unknown model type, assuming features exist in CSV")
+    
+    # Apply feature extraction if available
+    if extract_features:
         df = extract_features(df)
-    else:
-        # Generic feature extraction - assumes features already exist
-        print("Warning: Unknown model type, assuming features exist in CSV")
     
     # Prepare features
     if not all(col in df.columns for col in feature_cols):
