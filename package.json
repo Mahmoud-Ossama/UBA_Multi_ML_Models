@@ -9,14 +9,17 @@
     "reencode": "node scripts/reencode.js"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
     "chart.js": "^4.4.0",
-    "react-chartjs-2": "^5.2.0"
+    "react": "^18.2.0",
+    "react-chartjs-2": "^5.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "vite": "^5.0.0",
     "@vitejs/plugin-react": "^4.0.0",
-    "ffmpeg-static": "^5.1.0"
+    "autoprefixer": "^10.4.23",
+    "ffmpeg-static": "^5.1.0",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.18",
+    "vite": "^5.0.0"
   }
 }
