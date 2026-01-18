@@ -39,3 +39,46 @@ export async function fetchAlerts() {
   ];
   return Promise.resolve(alerts);
 }
+
+export async function fetchModels() {
+  // Try to fetch from backend endpoint first
+  try {
+    const res = await fetch("/api/models");
+    if (res.ok) {
+      const data = await res.json();
+      return data;
+    }
+  } catch (e) {
+    // network error or endpoint missing - fall back to mock
+  }
+
+  // Fallback mock models with example metric schemas
+  const models = [
+    {
+      id: "model_rf",
+      name: "Random Forest Classifier",
+      metrics: ["accuracy", "precision", "recall"],
+    },
+    {
+      id: "model_lstm",
+      name: "Neural Network (LSTM)",
+      metrics: ["loss", "auc", "f1"],
+    },
+    {
+      id: "model_svm",
+      name: "Support Vector Machine",
+      metrics: ["accuracy", "support"],
+    },
+    {
+      id: "model_xgb",
+      name: "Gradient Boosting",
+      metrics: ["accuracy", "precision", "recall", "f1"],
+    },
+    {
+      id: "model_cnn",
+      name: "Deep Learning CNN",
+      metrics: ["loss", "accuracy"],
+    },
+  ];
+  return Promise.resolve(models);
+}

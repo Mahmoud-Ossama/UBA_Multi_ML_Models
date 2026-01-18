@@ -1,42 +1,25 @@
-import React, { useMemo, useState } from 'react'
-import UserList from './UserList'
+import React, { useState, useEffect } from 'react'
 import AlertList from './AlertList'
-import MiniChart from './MiniChart'
+import { fetchModels } from '../services/api'
+import MultiSelect from './MultiSelect'
 
 export default function Dashboard({ alerts = [], analysis = [], onRunAnalysis }){
   const [query, setQuery] = useState('')
   const [riskFilter, setRiskFilter] = useState('all')
 
   // Model Selection & File Upload States
-  const [selectedModel, setSelectedModel] = useState('')
+  const [models, setModels] = useState([])
+  const [selectedModels, setSelectedModels] = useState([])
   const [selectedTool, setSelectedTool] = useState('')
   const [uploadedFile, setUploadedFile] = useState(null)
 
-  const users = useMemo(() => {
-    // derive users from analysis
-    const map = new Map()
-    analysis.forEach(a => {
-      if(!map.has(a.username)) map.set(a.username, {username:a.username, last: a.time, risk:a.risk, events:[]})
-      map.get(a.username).events.push(a)
-      if(a.time > map.get(a.username).last) map.get(a.username).last = a.time
-    })
-    return Array.from(map.values())
-  }, [analysis])
+  useEffect(() => {
+    let mounted = true
+    fetchModels().then(ms => { if (mounted) setModels(ms || []) }).catch(()=>{ if (mounted) setModels([]) })
+    return () => { mounted = false }
+  }, [])
 
-  const filtered = users.filter(u => {
-    if(query && !u.username.toLowerCase().includes(query.toLowerCase())) return false
-    if(riskFilter !== 'all' && u.risk !== riskFilter) return false
-    return true
-  })
-
-  // Available Models
-  const models = [
-    { id: 'model1', name: 'Random Forest Classifier' },
-    { id: 'model2', name: 'Neural Network (LSTM)' },
-    { id: 'model3', name: 'Support Vector Machine' },
-    { id: 'model4', name: 'Gradient Boosting' },
-    { id: 'model5', name: 'Deep Learning CNN' }
-  ]
+  // Users list removed — no longer deriving per-user summary from analysis
 
   const tools = [
     { id: 'tool1', name: 'Anomaly Scoring' },
@@ -53,21 +36,28 @@ export default function Dashboard({ alerts = [], analysis = [], onRunAnalysis })
   }
 
   const handleAnalyze = () => {
-    if (!selectedModel || !uploadedFile) {
-      alert('Please select a model and upload a file')
+    if ((!selectedModels || selectedModels.length === 0) || !uploadedFile) {
+      alert('Please select at least one model and upload a file')
       return
     }
 
     if (!onRunAnalysis) return
 
-    const model = models.find(m => m.id === selectedModel)
+    const selectedInfo = models.filter(m => selectedModels.includes(m.id))
     const tool = tools.find(t => t.id === selectedTool)
-    onRunAnalysis({
-      modelId: selectedModel,
-      modelName: model ? model.name : selectedModel,
+
+    const payload = {
+      modelIds: selectedModels,
+      models: selectedInfo,
       toolName: tool ? tool.name : '',
       fileName: uploadedFile.name
-    })
+    }
+    if (selectedModels.length === 1) {
+      payload.modelId = selectedModels[0]
+      payload.modelName = (selectedInfo[0] && selectedInfo[0].name) || selectedModels[0]
+    }
+
+    onRunAnalysis(payload)
   }
 
   return (
@@ -81,17 +71,14 @@ export default function Dashboard({ alerts = [], analysis = [], onRunAnalysis })
 
           <div className="upload-select-row">
             <div className="upload-select">
-              <label>Select model</label>
-              <select
-                className="filter"
-                value={selectedModel}
-                onChange={e => setSelectedModel(e.target.value)}
-              >
-                <option value="">Choose a model…</option>
-                {models.map(model => (
-                  <option key={model.id} value={model.id}>{model.name}</option>
-                ))}
-              </select>
+              <label>Select model(s)</label>
+              <MultiSelect
+                options={models}
+                selected={selectedModels}
+                onChange={setSelectedModels}
+                placeholder="Choose model(s)"
+                maxVisible={3}
+              />
             </div>
 
             <div className="upload-select">
@@ -126,43 +113,13 @@ export default function Dashboard({ alerts = [], analysis = [], onRunAnalysis })
           <button
             className="btn primary upload-run-btn"
             onClick={handleAnalyze}
-            disabled={!selectedModel || !uploadedFile}
+            disabled={(selectedModels.length === 0) || !uploadedFile}
           >
             Run analysis
           </button>
         </div>
 
-        <div className="panel">
-          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-            <h3>Users</h3>
-            <MiniChart analysis={analysis} />
-          </div>
-
-          <div className="search-row">
-            <input className="input" placeholder="Search username..." value={query} onChange={e=>setQuery(e.target.value)} />
-            <select className="filter" value={riskFilter} onChange={e=>setRiskFilter(e.target.value)}>
-              <option value="all">All risks</option>
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-            </select>
-          </div>
-
-          <UserList users={filtered} />
-        </div>
-
-        <div style={{marginTop:12}} className="panel">
-          <h4>Recent Analysis</h4>
-          {analysis.slice(0,8).map(a=> (
-            <div key={a.id} style={{padding:'8px 0',borderBottom:'1px solid rgba(255,255,255,0.03)'}}>
-              <div style={{display:'flex',justifyContent:'space-between'}}>
-                <div style={{fontWeight:600}}>{a.username}</div>
-                <div style={{color:'rgba(255,255,255,0.6)'}}>{new Date(a.time).toLocaleString()}</div>
-              </div>
-              <div style={{color:'rgba(255,255,255,0.7)'}}>{a.action} — risk {a.risk}</div>
-            </div>
-          ))}
-        </div>
+          {/* Users and Recent Analysis panels removed per request */}
       </div>
 
       <aside>
@@ -173,7 +130,7 @@ export default function Dashboard({ alerts = [], analysis = [], onRunAnalysis })
 
         <div style={{marginTop:12}} className="panel">
           <h4>Overview</h4>
-          <p style={{color:'rgba(255,255,255,0.7)'}}>Totals: {users.length} users — Alerts: {alerts.length}</p>
+          <p style={{color:'rgba(255,255,255,0.7)'}}>Totals: {analysis.length} analyses — Alerts: {alerts.length}</p>
         </div>
       </aside>
     </div>

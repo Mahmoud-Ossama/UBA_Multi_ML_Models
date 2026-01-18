@@ -52,20 +52,54 @@ body{font-family:Inter,Segoe UI,Arial,sans-serif,Poppins;margin:0;background:lin
 .panel{background:var(--card);padding:16px;border-radius:12px}
 .search-row{display:flex;gap:8px;margin-bottom:12px}
 .input{flex:1;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:white}
-.filter{padding:8px;border-radius:8px;background:rgba(255,255,255,0.03);color:white}
+.filter{padding:12px 14px;border-radius:10px;background:rgba(255,255,255,0.03);color:white;font-size:16px;min-height:44px;box-sizing:border-box;border:1px solid rgba(255,255,255,0.08);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: linear-gradient(180deg, rgba(255,255,255,0.012), rgba(255,255,255,0.008));
+}
+
+/* MultiSelect component styles */
+.multi-select{position:relative;max-width:480px;margin:0 auto}
+.multi-select-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;background:rgba(255,255,255,0.02);border-radius:10px;border:1px solid rgba(255,255,255,0.06);padding:10px 12px;color:white;cursor:pointer}
+.multi-select-placeholder{color:rgba(255,255,255,0.6)}
+.multi-select-chips{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.multi-select-chip{background:rgba(255,255,255,0.04);padding:6px 10px;border-radius:999px;font-size:13px}
+.multi-select-arrow{margin-left:8px;color:rgba(255,255,255,0.7)}
+.multi-select-dropdown{position:absolute;left:0;right:0;top:calc(100% + 8px);background:var(--card);border-radius:10px;padding:8px;border:1px solid rgba(255,255,255,0.04);box-shadow:0 10px 30px rgba(0,0,0,0.5);z-index:200}
+.multi-select-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;cursor:pointer}
+.multi-select-item:hover{background:rgba(255,255,255,0.02)}
+.multi-select-item input{width:16px;height:16px}
+.multi-select-item-label{color:white}
+
+/* Make select controls fill their container inside upload-select */
+.upload-select .filter{width:100%;box-sizing:border-box}
+.upload-select label{font-size:16px}
+
+/* Focus and accessibility */
+.filter:focus{outline:none;box-shadow:0 6px 20px rgba(11,46,80,0.28);border-color:rgba(91,209,255,0.6)}
+
+/* Try to style the dropdown options (browser support varies) */
+.filter option{background:var(--card);color:#fff;padding:8px 12px}
+
+/* Hide the default IE/Edge expand arrow */
+select::-ms-expand{display:none}
+
+/* Add a custom chevron using background image for better visual (keeps native popup) */
+.filter{background-repeat:no-repeat;background-position:calc(100% - 12px) center;background-size:18px 18px;background-image:linear-gradient(90deg, rgba(255,255,255,0.01), rgba(255,255,255,0.01)), url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.92)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>');}
 
 /* Upload layout helpers */
-.upload-panel{text-align:center;margin-bottom:20px}
-.upload-header h3{margin:0 0 4px}
-.upload-header p{margin:0;font-size:13px;color:rgba(255,255,255,0.65)}
-.upload-select-row{margin-top:18px;display:flex;gap:14px;justify-content:center}
-.upload-select{min-width:200px}
-.upload-select label{display:block;margin-bottom:6px;font-size:13px;font-weight:600;color:rgba(255,255,255,0.85)}
-.upload-control{margin-top:18px;display:flex;flex-direction:column;align-items:center}
-.upload-input-centered{max-width:360px;width:100%}
-.upload-file-meta{margin-top:6px;font-size:13px;color:rgba(255,255,255,0.75)}
+.upload-panel{text-align:center;margin-top:40px;margin-bottom:20px}
+.upload-header h3{margin:0 0 8px;font-size:22px;font-weight:700}
+.upload-header p{margin:0;font-size:16px;color:rgba(255,255,255,0.82);max-width:760px;margin-left:auto;margin-right:auto}
+.upload-select-row{margin-top:20px;display:flex;gap:28px;justify-content:center;align-items:flex-end}
+.upload-select{min-width:240px}
+.upload-select label{display:block;margin-bottom:8px;font-size:14px;font-weight:700;color:rgba(255,255,255,0.9)}
+.upload-control{margin-top:20px;display:flex;flex-direction:column;align-items:center;gap:28px}
+.upload-input-centered{max-width:480px;width:100%}
+.upload-file-meta{margin-top:6px;font-size:14px;color:rgba(255,255,255,0.8)}
 .upload-file-meta span{font-weight:600}
-.upload-run-btn{margin-top:18px;max-width:360px;width:100%}
+.upload-run-btn{margin-top:18px;max-width:480px;width:100%;padding:14px 26px;font-size:17px;border-radius:14px}
 
 /* Custom styling for file input (Upload dataset) */
 .input[type="file"] {
@@ -90,11 +124,6 @@ body{font-family:Inter,Segoe UI,Arial,sans-serif,Poppins;margin:0;background:lin
 .input[type="file"]::file-selector-button:hover {
   opacity: 0.9;
 }
-.user-row{display:flex;align-items:center;justify-content:space-between;padding:10px;border-radius:8px;border-bottom:1px solid rgba(255,255,255,0.03)}
-.badge{padding:6px 10px;border-radius:999px;font-weight:600}
-.badge.green{background:rgba(76,217,100,0.12);color:#4ce164}
-.badge.yellow{background:rgba(255,201,71,0.12);color:#ffd166}
-.badge.red{background:rgba(255,102,102,0.12);color:#ff6b6b}
 .site-footer{padding:18px 40px;color:rgba(255,255,255,0.6)}
 
 /* Full-screen loading view for analysis */
@@ -400,6 +429,16 @@ main > * {
   .hero-right{width:100%;height:140px}
   .hero-title{font-size:32px}
   .hero-video-bg{width:200%;height:200%}
+}
+
+@media (max-width:700px){
+  .upload-panel{margin-top:20px}
+}
+
+/* Add space at top of the right column (Alerts) so it aligns with main upload panel */
+.dashboard aside{padding-top:40px}
+@media (max-width:700px){
+  .dashboard aside{padding-top:20px}
 }
 
 /* Code background (simulates 'hacking' visual without sharing harmful content) */
